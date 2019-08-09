@@ -1,0 +1,27 @@
+image: hashicorp/terraform:0.12.4
+
+
+Terraform_Plan: &Terraform_Plan
+  name: Terraform Plan
+  script:
+    - echo "credentials \"app.terraform.io\" { token = \"$TF_TOKEN\" }" >> .terraformrc #  This is only needed if your using terraform remote backend
+    - terraform init
+    - terraform plan
+
+Terraform_Apply: &Terraform_Apply
+  trigger: manual
+  name: Terraform Apply
+  script:
+    - echo "credentials \"app.terraform.io\" { token = \"$TF_TOKEN\" }" >> .terraformrc
+    - terraform init
+    - terraform apply -auto-approve
+
+
+pipelines:
+  branches:
+    master:
+    - step: *Terraform_Plan
+    - step: *Terraform_Apply
+    '**' :
+    - step: *Terraform_Plan
+
